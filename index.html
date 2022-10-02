@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TicTacToe</title>
+    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="page-cover">
+      <div class="buttons">
+        <button class="primary showReccord">Show Reccord</button>
+        <button class="primary saveGame">Save Game</button>
+        <button class="primary loadGame">Load Game</button>        
+      </div>
+      <div class="turn-of">
+        Current Turn
+        <div class="cell">X</div>
+      </div>
+      <div class="board"></div>
+      <button class="warning undo">Undo Last Move</button>
+      <button class="approve restart">Restart Game</button>
+    </div>
+    <div class="popup">
+      <div class="popup-content">
+        <div class="popup-text"></div>
+        <div>
+          <button class="warning close">Close Popup</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
