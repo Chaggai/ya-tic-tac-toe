@@ -18,7 +18,7 @@
   ];
 
   const playerType = ["X", "O"];
-  const turnsHistory = [];
+  const movesHistory = [];
 
   let boardSize = 9; // TODO: try to encrease board size
   let isGameOver = false;
@@ -31,10 +31,10 @@
     click = () => {
       if (this.isOccupied || isGameOver) return;
       this.setMark();
+      movesHistory.push(this);
       checkForTie() && handleTie();
       checkForWin() && handleWin(this.mark);
       switchTurn();
-      turnsHistory.push(this);
     };
     setMark() {
       this.mark = currentTurn;
@@ -52,13 +52,6 @@
 
   const cells = [...Array(boardSize)].map(() => {
     return new Cell(false, null, document.createElement("div"));
-  });
-
-  let board = document.querySelector(".board");
-  cells.map((cell) => {
-    cell.elem.classList.add("cell");
-    cell.elem.onclick = cell.click;
-    board.appendChild(cell.elem);
   });
 
   function checkForTie() {
@@ -80,7 +73,24 @@
 
   function handleWin(mark) {
     isGameOver = true;
-    showPopup(`${mark} wins!`);
+    const moves = movesHistory.length;
+    const isNewReccord = ceckForNewReccord(moves);
+    if (isNewReccord) {
+      showPopup(`${mark} wins in a new record of ${moves} moves!!!`);
+      return;
+    }
+    showPopup(`${mark} wins is ${moves} moves!!!`);
+  }
+
+  function ceckForNewReccord(moves) {
+    const reccord = localStorage.getItem("reccord");
+    const isNewReccord = reccord > moves || !reccord;
+    isNewReccord && setNewReccord(moves);
+    return isNewReccord;
+  }
+
+  function setNewReccord(moves) {
+    localStorage.setItem("reccord", moves);
   }
 
   function switchTurn() {
@@ -90,18 +100,37 @@
 
   // UI buttons and functions
 
-  const currentTurnDisplay = document.querySelector(".turn-of > .cell");
-  const popup = document.querySelector(".popup");
+  const app = document.querySelector(".app");
+  let board = app.querySelector(".board");
 
-  const undoButton = (document.querySelector(".undo").onclick = undoLastMove);
-  const restartButton = (document.querySelector(".restart").onclick =
-    restartGame);
+  cells.map((cell) => {
+    cell.elem.classList.add("cell");
+    cell.elem.onclick = cell.click;
+    board.appendChild(cell.elem);
+  });
+
+  const currentTurnDisplay = app.querySelector(".turn-of > .cell");
+  const popup = app.querySelector(".popup");
+
+  const showReccordButton = (app.querySelector(".showReccord").onclick =
+    showReccord);
+  const undoButton = (app.querySelector(".undo").onclick = undoLastMove);
+  const restartButton = (app.querySelector(".restart").onclick = restartGame);
   const closePopupButton = (popup.querySelector(".close").onclick = closePopup);
 
+  function showReccord() {
+    const reccord = localStorage.getItem("reccord");
+    if (!reccord) {
+      showPopup("No record has yet been set!");
+      return;
+    }
+    showPopup(`The current record is a win in ${reccord} moves`);
+  }
+
   function undoLastMove() {
-    if (turnsHistory.length < 1 || isGameOver) return;
-    turnsHistory.at(-1).removeMark();
-    turnsHistory.pop();
+    if (movesHistory.length < 1 || isGameOver) return;
+    movesHistory.at(-1).removeMark();
+    movesHistory.pop();
     switchTurn();
   }
 
@@ -111,7 +140,7 @@
       cell.removeMark();
     });
     currentTurn !== playerType[0] && switchTurn();
-    turnsHistory.length = 0;
+    movesHistory.length = 0;
   }
 
   function closePopup() {
