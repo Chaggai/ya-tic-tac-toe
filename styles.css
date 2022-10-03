@@ -58,6 +58,10 @@ button.approve {
   border-radius: 5px;
 }
 
+.turn-of .cell {
+  cursor: auto;
+}
+
 .board {
   display: grid;
   justify-content: center;

@@ -17,12 +17,12 @@
     [2, 4, 6],
   ];
 
-  const playerType = ["X", "O"];
-  const movesHistory = [];
+  const playerType = { x: "X", o: "O" };
+  let movesHistory = [];
 
-  let boardSize = 9; // TODO: try to encrease board size
+  let boardSize = 9;
   let isGameOver = false;
-  let currentTurn = playerType[0]; // X always starts
+  let currentTurn = playerType.x; // X always starts
 
   class Cell {
     constructor(isOccupied, mark, elem) {
@@ -30,11 +30,11 @@
     }
     click = () => {
       if (this.isOccupied || isGameOver) return;
-      this.setMark();
+      this.setMark(currentTurn);
       playTurn(this, this.mark);
     };
-    setMark() {
-      this.mark = currentTurn;
+    setMark(mark) {
+      this.mark = mark;
       this.elem.innerHTML = this.mark;
       this.elem.classList.add(this.mark);
       this.isOccupied = true;
@@ -79,7 +79,7 @@
     isGameOver = true;
     const moves = movesHistory.length;
     let text = `${mark} wins is ${moves} moves!!!`;
-    const isNewReccord = ceckForNewReccord(moves);
+    const isNewReccord = checkForNewReccord(moves);
     if (isNewReccord) {
       showPopup(`${mark} wins in a new record of ${moves} moves!!!`);
       return;
@@ -87,7 +87,7 @@
     showPopup(text);
   }
 
-  function ceckForNewReccord(moves) {
+  function checkForNewReccord(moves) {
     const reccord = localStorage.getItem("reccord");
     const isNewReccord = reccord > moves || !reccord;
     isNewReccord && setNewReccord(moves);
@@ -99,7 +99,7 @@
   }
 
   function switchTurn() {
-    currentTurn = currentTurn === playerType[0] ? playerType[1] : playerType[0];
+    currentTurn = currentTurn === playerType.x ? playerType.o : playerType.x;
     currentTurnDisplay.innerHTML = currentTurn;
   }
 
@@ -121,6 +121,8 @@
     showReccord);
   const undoButton = (app.querySelector(".undo").onclick = undoLastMove);
   const restartButton = (app.querySelector(".restart").onclick = restartGame);
+  const saveGameButton = (app.querySelector(".saveGame").onclick = saveGame);
+  const loadGameButton = (app.querySelector(".loadGame").onclick = loadGame);
   const closePopupButton = (popup.querySelector(".close").onclick = closePopup);
 
   function showReccord() {
@@ -129,23 +131,63 @@
       showPopup("No record has yet been set!");
       return;
     }
-    showPopup(`The current record is a win in ${reccord} moves`);
+    showPopup(`The current record is a win in ${reccord} moves!`);
   }
 
   function undoLastMove() {
-    if (movesHistory.length < 1 || isGameOver) return;
+    if (movesHistory.length < 1 || isGameOver) {
+      let text = isGameOver
+        ? "A move cannot be undone after the game is over!"
+        : "No previous moves!";
+      showPopup(text);
+      return;
+    }
     movesHistory.at(-1).removeMark();
     movesHistory.pop();
     switchTurn();
   }
 
-  function restartGame() {
+  function restartGame(isLoadedGame = false, turn = currentTurn) {
     cells.forEach((cell) => {
       isGameOver = false;
       cell.removeMark();
     });
-    currentTurn !== playerType[0] && switchTurn();
+    if (isLoadedGame) {
+      currentTurn !== turn && switchTurn();
+    } else {
+      currentTurn !== playerType.x && switchTurn();
+    }
+    isLoadedGame = false;
     movesHistory.length = 0;
+  }
+
+  function saveGame() {
+    let text = "Game saved!";
+    if (isGameOver) {
+      text = "Can't save a finished game!";
+    } else if (movesHistory.length === 0) {
+      text = "An empty game cannot be saved!";
+    } else {
+      const boardSnapshot = { cells, currentTurn };
+      localStorage.setItem("savedGame", JSON.stringify(boardSnapshot));
+    }
+    showPopup(text);
+  }
+
+  function loadGame() {
+    let loadedGame = JSON.parse(localStorage.getItem("savedGame"));
+    if (!loadedGame) {
+      showPopup("There is no saved game to load!");
+      return;
+    }
+    restartGame(true, loadedGame.currentTurn);
+    loadedGame.cells.forEach((cell, index) => {
+      currentCell = cells[index];
+      if (!cell.isOccupied) return;
+      currentCell.setMark(cell.mark);
+      movesHistory.push(currentCell);
+    });
+    showPopup("Game loaded!");
   }
 
   function closePopup() {
