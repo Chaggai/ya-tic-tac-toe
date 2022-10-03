@@ -31,10 +31,7 @@
     click = () => {
       if (this.isOccupied || isGameOver) return;
       this.setMark();
-      movesHistory.push(this);
-      checkForTie() && handleTie();
-      checkForWin() && handleWin(this.mark);
-      switchTurn();
+      playTurn(this, this.mark);
     };
     setMark() {
       this.mark = currentTurn;
@@ -53,6 +50,13 @@
   const cells = [...Array(boardSize)].map(() => {
     return new Cell(false, null, document.createElement("div"));
   });
+
+  function playTurn(cell, mark) {
+    movesHistory.push(cell);
+    checkForTie() && handleTie();
+    checkForWin() && handleWin(mark);
+    switchTurn();
+  }
 
   function checkForTie() {
     return cells.every((cell) => cell.isOccupied);
@@ -74,12 +78,13 @@
   function handleWin(mark) {
     isGameOver = true;
     const moves = movesHistory.length;
+    let text = `${mark} wins is ${moves} moves!!!`;
     const isNewReccord = ceckForNewReccord(moves);
     if (isNewReccord) {
       showPopup(`${mark} wins in a new record of ${moves} moves!!!`);
       return;
     }
-    showPopup(`${mark} wins is ${moves} moves!!!`);
+    showPopup(text);
   }
 
   function ceckForNewReccord(moves) {
