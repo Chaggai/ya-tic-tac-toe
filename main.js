@@ -64,7 +64,7 @@
 
   function handleTie() {
     isGameOver = true;
-    showPopup("It's a Tie!");
+    showPopup("It's a Tie!", true);
   }
 
   function checkForWin() {
@@ -84,7 +84,7 @@
       showPopup(`${mark} wins in a new record of ${moves} moves!!!`);
       return;
     }
-    showPopup(text);
+    showPopup(text, true);
   }
 
   function checkForNewReccord(moves) {
@@ -117,13 +117,16 @@
   const currentTurnDisplay = app.querySelector(".turn-of > .cell");
   const popup = app.querySelector(".popup");
 
-  const showReccordButton = (app.querySelector(".showReccord").onclick =
-    showReccord);
-  const undoButton = (app.querySelector(".undo").onclick = undoLastMove);
-  const restartButton = (app.querySelector(".restart").onclick = restartGame);
-  const saveGameButton = (app.querySelector(".saveGame").onclick = saveGame);
-  const loadGameButton = (app.querySelector(".loadGame").onclick = loadGame);
-  const closePopupButton = (popup.querySelector(".close").onclick = closePopup);
+  app.querySelector(".showReccord").onclick = showReccord;
+  app.querySelector(".undo").onclick = undoLastMove;
+  app.querySelector(".saveGame").onclick = saveGame;
+  app.querySelector(".loadGame").onclick = loadGame;
+
+
+  const closePopupButton = popup.querySelector(".close");
+  closePopupButton.onclick = closePopup;
+  const restartButtons = app.querySelectorAll(".restart");
+  restartButtons.forEach(button => button.onclick = restartGame);
 
   function showReccord() {
     const reccord = localStorage.getItem("reccord");
@@ -147,18 +150,18 @@
     switchTurn();
   }
 
-  function restartGame(isLoadedGame = false, turn = currentTurn) {
+  function restartGame(isLoadedGame = false, turn = playerType.x) {
     cells.forEach((cell) => {
-      isGameOver = false;
       cell.removeMark();
     });
     if (isLoadedGame) {
       currentTurn !== turn && switchTurn();
     } else {
-      currentTurn !== playerType.x && switchTurn();
+      switchTurn();
     }
-    isLoadedGame = false;
     movesHistory.length = 0;
+    isGameOver = false;
+    closePopup();
   }
 
   function saveGame() {
@@ -194,8 +197,12 @@
     popup.style.top = "-100vh";
   }
 
-  function showPopup(text = "") {
+  function showPopup(text = "", isShowRestartButton = false) {
     popup.style.top = "0";
     popup.querySelector(".popup-text").innerHTML = text;
+    closePopupButton.focus();
+    isShowRestartButton
+      ? (restartButtons[1].style.display = "inline")
+      : (restartButtons[1].style.display = "none");
   }
 })();
