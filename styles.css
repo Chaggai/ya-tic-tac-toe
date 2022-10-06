@@ -3,6 +3,8 @@
 *::before {
   box-sizing: border-box;
   font: 100 16px arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .buttons {
@@ -35,6 +37,7 @@ button.approve {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .cover {
@@ -112,7 +115,7 @@ button.approve {
   align-items: center;
   justify-content: center;
   position: fixed;
-  top: -100vw;
+  top: -300vw;
   left: 0;
   transition: top 0.5s;
 }
@@ -125,7 +128,8 @@ button.approve {
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  min-width: 500px;
+  margin: 20px;
+  text-align: center;
 }
 
 .popup-text {
